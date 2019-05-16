@@ -41,7 +41,7 @@ void troca_elemento(int *a, int *b) {
   *b = aux;
 }
 
-void partition(int arr[], int n, int pivot) {
+void partition(int arr[], int n, int pivot, int *pos_pivot) {
   //Troca o pivô de lugar com a primeira posição do vetor
   for(int i = 0; i < n; i++) {
     if(arr[i] == pivot) {
@@ -67,18 +67,42 @@ void partition(int arr[], int n, int pivot) {
     //printf("pivo %d pos pivo %d pos final %d\n", arr[pos_pivo], pos_pivo, pos_final);
   }
 
-  printf("pos final pivo: %d\npos final ultimo pivo: %d\npos que queremos: %d\n", pos_pivo, aux_pivo, n/2);
+  *pos_pivot = pos_pivo;
+}
 
-  /*for(int a = 0; a < n; a++) {
-    printf("%d ", arr[a]);
-  }*/
+void MBST(int arr[], int pivot, int n, int pos_pivot) {
+  //Inicializa os vetores
+  int tamanho_b = pos_pivot + 1;
+  int tamanho_a = n - pos_pivot - 1;
+  int a[tamanho_a];
+  int b[tamanho_b];
+
+  //Inicializa o A (maiores)
+  for(int k = 0; k < tamanho_a; k++) {
+    a[k] = arr[tamanho_b + k];
+    printf("%d ", a[k]);
+  }
+
+  printf("\n\nmenores:\n");
+
+  //Inicializa o B (vetores menores)
+  for(int k=0; k < tamanho_b; k++) {
+    b[k] = arr[k];
+    printf("%d ", b[k]);
+  }
 
 }
 
 void main() {
   int arr[54] = {29,22,28,14,45,10,44,23,9,39,38,52,6,5,50,37,11,26,3,15,2,53,40,54,25,55,12,19,30,16,18,13,1,48,41,24,43,46,47,17,34,20,31,32,22,35,4,49,51,7,36,27,8,21};
-  qsort(arr, 54, sizeof(int), compare);
   int n = 54;
+  int pos_pivot = 0;
   int pivot = mom(arr, n);
-  partition(arr, n, pivot);
+  partition(arr, n, pivot, &pos_pivot);
+  for(int i = 0; i < n; i++) {
+    printf("%d ", arr[i]);
+  }
+  printf("\n\nmaiores:\n");
+  MBST(arr, pivot, n, pos_pivot);
+
 }
