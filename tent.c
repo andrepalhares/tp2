@@ -72,13 +72,22 @@ void partition(int arr[], int n, int pivot, int *pos_pivot) {
 
 void MBST(int arr[], int pivot, int n, int pos_pivot) {
   //Inicializa os vetores
-  int tamanho_b = pos_pivot + 1;
+  int tamanho_b = pos_pivot;
   int tamanho_a = n - pos_pivot - 1;
   int a[tamanho_a];
   int b[tamanho_b];
 
+  //Ao criar o vetor, setar a posição que a mediana devera estar
+  //e ir colocando os elementos (if =/= de 0 atribui o valor)
+  //usar a (aux_pivot - pos_pivo)/2 (adicionar esse valor à posicao do pivo)
+  //para dividir as medianas
+
+  //ex se as posicoes forem 0 e 6, ao dividir vai dar 3
+  //a posicao nova do pivo sera 0 + 3 e metade vai pra um lado
+  // e o restante vai para o outro
+
   //Inicializa o A (maiores)
-  for(int k = 0; k < tamanho_a; k++) {
+  for(int k = n - 1; k >= tamanho_b; k--) {
     a[k] = arr[tamanho_b + k];
     printf("%d ", a[k]);
   }
@@ -94,8 +103,8 @@ void MBST(int arr[], int pivot, int n, int pos_pivot) {
 }
 
 void main() {
-  int arr[54] = {29,22,28,14,45,10,44,23,9,39,38,52,6,5,50,37,11,26,3,15,2,53,40,54,25,55,12,19,30,16,18,13,1,48,41,24,43,46,47,17,34,20,31,32,22,35,4,49,51,7,36,27,8,21};
-  int n = 54;
+  int arr[9] = {7,7,7,7,7,7,7,10, 10};
+  int n = 9;
   int pos_pivot = 0;
   int pivot = mom(arr, n);
   partition(arr, n, pivot, &pos_pivot);
