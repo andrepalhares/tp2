@@ -1,5 +1,16 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <windows.h>
+
+#define earthRadiusKm 6371.0
+#define M_PI 3.14159265358979323846
+
+struct Ponto{
+  double x;
+  double y;
+};
 
 struct Vertice {
     int seguinte;
@@ -36,7 +47,23 @@ struct Grafo* cria_grafo(int qte_vertices) {
     return grafo_criado;
 }
 
-void adiciona_aresta(struct Grafo* grafo, int a, int b, int distancia) {
+double deg2rad(double deg) {
+  return ((deg * M_PI) / 180);
+}
+
+int distanceEarthKm(double lat1d, double lon1d, double lat2d, double lon2d) {
+  double lat1r, lon1r, lat2r, lon2r, u, v;
+  lat1r = deg2rad(lat1d);
+  lon1r = deg2rad(lon1d);
+  lat2r = deg2rad(lat2d);
+  lon2r = deg2rad(lon2d);
+  u = sin((lat2r - lat1r)/2);
+  v = sin((lon2r - lon1r)/2);
+  return (int) 2.0 * earthRadiusKm * asin(sqrt(u * u + cos(lat1r) * cos(lat2r) * v * v));
+}
+
+void adiciona_aresta(struct Grafo* grafo, int a, int b, struct Ponto* pontos) {
+    int distancia = distanceEarthKm(pontos[a].x, pontos[a].y, pontos[b].x, pontos[b].y);
     struct Vertice* no_criado = adiciona_vertice(a, distancia);
     no_criado->proximo = grafo->sequencia[b].cabeca;
     grafo->sequencia[b].cabeca = no_criado;
@@ -61,21 +88,51 @@ void imprime(struct Grafo* grafo)
     }
 }
 
-// Driver program to test above functions
-int main()
-{
-    // create the graph given in above fugure
-    int V = 5;
-    struct Grafo* graph = cria_grafo(V);
-    adiciona_aresta(graph, 0, 1, 5);
-    adiciona_aresta(graph, 0, 4, 7);
-    adiciona_aresta(graph, 1, 2, 6);
-    adiciona_aresta(graph, 1, 3, 11);
-    adiciona_aresta(graph, 1, 4, 99);
-    adiciona_aresta(graph, 2, 3, 52);
-    adiciona_aresta(graph, 3, 4, 75);
+struct Ponto* inicializa_pontos(int qte_vertices, char nome[64]) {
+    struct Ponto* pontos = (struct Ponto*) malloc(qte_vertices * sizeof(struct Ponto));
 
-    // print the adjacency list representation of the above graph
+    FILE *arq;
+    arq = fopen(nome, "r");
+    char line[256];
+    int i = 0;
+    int j = 0;
+    while (fgets(line, sizeof(line), arq)) {
+        i++;
+        if(i <= qte_vertices ) {
+          fscanf(arq, "%lf %lf", &pontos[j].x, &pontos[j].y);
+          j++;
+        }
+    }
+
+    return pontos;
+}
+
+void inicializa_arestas(int qte_vertices, struct Grafo* grafo, struct Ponto* pontos) {
+  for(int i=0; i < qte_vertices; i++) {
+    for(int a = i+1; a < qte_vertices; a++) {
+      adiciona_aresta(grafo, i, a, pontos);
+    }
+  }
+}
+
+int qte_vertices(char nome[64]) {
+  FILE *cidades;
+	cidades = fopen(nome, "r");
+  int qte_cidades;
+
+	fscanf (cidades, "%d", &qte_cidades);
+
+	fclose(cidades);
+
+	return qte_cidades;
+}
+
+int main(int argc, char ** argv) {
+    int qte_ver = qte_vertices("cidades1.txt");
+    struct Grafo* graph = cria_grafo(qte_ver);
+    struct Ponto* pontos = inicializa_pontos(qte_ver, "cidades1.txt");
+    inicializa_arestas(qte_ver, graph, pontos);
+
     imprime(graph);
 
     return 0;
