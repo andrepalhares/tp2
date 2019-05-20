@@ -128,9 +128,9 @@ int qte_vertices(char nome[64]) {
 }
 
 int main(int argc, char ** argv) {
-    int qte_ver = qte_vertices("cidades1.txt");
+    int qte_ver = qte_vertices(argv[1]);
     struct Grafo* graph = cria_grafo(qte_ver);
-    struct Ponto* pontos = inicializa_pontos(qte_ver, "cidades1.txt");
+    struct Ponto* pontos = inicializa_pontos(qte_ver, argv[1]);
     inicializa_arestas(qte_ver, graph, pontos);
 
     imprime(graph);
