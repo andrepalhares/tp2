@@ -7,7 +7,7 @@
 #define earthRadiusKm 6371.0
 #define M_PI 3.14159265358979323846
 
-struct Ponto{
+struct Ponto {
   double x;
   double y;
 };
@@ -25,6 +25,7 @@ struct Lista {
 struct Grafo {
     int qte_vertices;
     struct Lista* sequencia;
+    int* verificado;
 };
 
 struct Vertice* adiciona_vertice(int seguinte, int distancia) {
@@ -39,6 +40,7 @@ struct Grafo* cria_grafo(int qte_vertices) {
     struct Grafo* grafo_criado = (struct Grafo*) malloc(sizeof(struct Grafo));
     grafo_criado->qte_vertices = qte_vertices;
     grafo_criado->sequencia = (struct Lista*) malloc(qte_vertices * sizeof(struct Lista));
+    grafo_criado->verificado = (int *) malloc(qte_vertices * (qte_vertices - 1) * sizeof(struct Lista));
 
     for (int i = 0; i < qte_vertices; ++i) {
         grafo_criado->sequencia[i].cabeca = NULL;
@@ -73,8 +75,7 @@ void adiciona_aresta(struct Grafo* grafo, int a, int b, struct Ponto* pontos) {
     grafo->sequencia[a].cabeca = no_criado;
 }
 
-void imprime(struct Grafo* grafo)
-{
+void imprime(struct Grafo* grafo) {
     for (int v = 0; v < grafo->qte_vertices; v++)
     {
         struct Vertice* no_aux = grafo->sequencia[v].cabeca;
@@ -127,13 +128,56 @@ int qte_vertices(char nome[64]) {
 	return qte_cidades;
 }
 
+void DFS(struct Grafo* grafo, int vertice) {
+    struct Vertice* temp = grafo->sequencia[vertice].cabeca;
+
+    grafo->verificado[vertice] = 1;
+    printf("Visitado %d \n", vertice);
+
+    while(temp!=NULL) {
+      int verticeConectado = temp->seguinte;
+
+      if(grafo->verificado[verticeConectado] == 0) {
+        DFS(grafo, verticeConectado);
+      }
+      temp = temp->proximo;
+    }
+}
+
+int FOREST(struct Grafo* grafo) {
+    int v;
+    int n = 0;
+    for (v = 0; v < grafo->qte_vertices; v++){
+        grafo->verificado[v] = 0;
+    }
+
+    for (v = 0; v < grafo->qte_vertices; v++) {
+        if(grafo->verificado[v]==0){
+            n++;
+            printf("\nComponente n%d:\n", n);
+            DFS(grafo, v);
+            printf("\n");
+        }
+    }
+    return n;
+}
+
+
 int main(int argc, char ** argv) {
     int qte_ver = qte_vertices(argv[1]);
+    int qte_are = (qte_ver * (qte_ver - 1))/2;
+    printf("qte vertices %d", qte_ver);
+    int arr = (int) malloc(qte_ver * (qte_ver - 1) * sizeof(int));
     struct Grafo* graph = cria_grafo(qte_ver);
     struct Ponto* pontos = inicializa_pontos(qte_ver, argv[1]);
     inicializa_arestas(qte_ver, graph, pontos);
 
-    imprime(graph);
+    //adicionar o algoritmo da mediana
+    int mediana = 8248;
+
+    FOREST(graph);
+
+    //imprime(graph);
 
     return 0;
 }
